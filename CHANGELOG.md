@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.7.4]
+
+### Fixed
+- Functions that reassign one of their own module-level globals (`global x; x = ...`) can now
+  be cloned and executed. CPython's `STORE_GLOBAL` writes the raw value straight into the
+  globals dict (bypassing `__setitem__`), so reading the name back used to raise
+  `AttributeError: 'str' object has no attribute 'metadata'`. The context now adopts such raw
+  values into a `MockItem` on read, tagged with the new `MockOrigin.REASSIGNED_GLOBAL` origin,
+  and `reset()` tolerates raw values that were never read back.
+
+### Added
+- New `MockOrigin.REASSIGNED_GLOBAL` origin for values written into the context by the tested
+  function itself via `STORE_GLOBAL`.
+
 ## [0.7.1] - 2025-05-30
 
 ### Changed
@@ -99,6 +113,7 @@ type signature.
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.7.4]: https://github.com/aafrecct/funalone/releases/tag/0.7.4
 [0.7.1]: https://github.com/aafrecct/funalone/releases/tag/0.7.1
 [0.7.0]: https://github.com/aafrecct/funalone/releases/tag/0.7.0
 [0.6.0]: https://github.com/aafrecct/funalone/releases/tag/0.6.0

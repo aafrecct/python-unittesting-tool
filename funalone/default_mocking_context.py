@@ -17,6 +17,7 @@ from funalone.types import (
 )
 
 BUILTIN_NAMES = dir(builtins)
+_MISSING = object()
 
 
 class ContextStates(Enum):
@@ -88,7 +89,19 @@ class DefaultMockingContext(dict):
                 return builtin
 
         active_access = 1 if self.state == ContextStates.ACTIVE else 0
-        if result := super().get(name):
+        result = super().get(name, _MISSING)
+        if result is not _MISSING:
+            if not isinstance(result, MockItem):
+                # The value was written straight into the dict, bypassing
+                # `__setitem__`. This happens when a cloned function reassigns
+                # one of its module-level globals (`global x; x = ...`), since
+                # CPython's STORE_GLOBAL uses the C dict API. Adopt the raw
+                # value into a MockItem so access tracking stays consistent and
+                # reading it back does not fail.
+                result = MockItem(
+                    result, MockMetadata(MockOrigin.REASSIGNED_GLOBAL, 0, 0)
+                )
+                super().__setitem__(name, result)
             result.metadata.total_access_count += 1
             result.metadata.active_access_count += active_access
             return result.object
@@ -135,6 +148,10 @@ class DefaultMockingContext(dict):
 
     def reset(self):
         for mock_item in self.values():
+            if not isinstance(mock_item, MockItem):
+                # Raw value written via STORE_GLOBAL that was never read back
+                # and therefore never adopted into a MockItem.
+                continue
             mock_item.metadata.total_access_count = 0
             mock_item.metadata.active_access_count = 0
             if isinstance(mock_item.object, Mock):

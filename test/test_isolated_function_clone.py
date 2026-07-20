@@ -18,6 +18,7 @@ from test.utils import (
     if_else_function,
     raise_and_catch_a_value_error,
     raise_and_catch_custom_exception,
+    reassign_and_read_module_global,
     return_external_variable,
     use_of_a_strange_object,
     use_of_str_builtin_function,
@@ -49,6 +50,14 @@ class IsolatedFunctionCloneTests(DeclarativeTestCase, TestCase):
             "args": (1, 2),
             "checks": {
                 "not_called": [check_one],
+            },
+        },
+        {
+            "message": "Reassigning and reading back a module-level global",
+            "function": reassign_and_read_module_global,
+            "args": ("reassigned",),
+            "checks": {
+                "result": "reassigned",
             },
         },
         {

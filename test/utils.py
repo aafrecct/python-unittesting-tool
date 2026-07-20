@@ -24,6 +24,19 @@ def return_external_variable() -> None:
     return ext_variable
 
 
+reassigned_module_global = "initial"
+
+
+def reassign_and_read_module_global(new_value: Any) -> Any:
+    """Example function.
+    Reassigns a module-level global and then reads it back within the same
+    call. This exercises a STORE_GLOBAL followed by a LOAD_GLOBAL of the same
+    name, which writes a raw (non-MockItem) value into the mocking context."""
+    global reassigned_module_global
+    reassigned_module_global = new_value
+    return reassigned_module_global
+
+
 def basic_two_int_function(a: int, b: int) -> int:
     """Example function.
     You can check if this fucntion has been called by checking the mock

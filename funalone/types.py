@@ -18,6 +18,7 @@ class MockOrigin(Enum):
     FUNCTION_ORIGINAL = 2
     GENERATED_WHILE_ACTIVE = 3
     GENERATED_WHILE_INACTIVE = 4
+    REASSIGNED_GLOBAL = 5
 
 
 @dataclass

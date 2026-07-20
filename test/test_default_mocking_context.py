@@ -60,6 +60,23 @@ class DefaultMockingContestTests(DeclarativeTestCase, TestCase):
             },
         },
         {
+            "message": "Reading a raw value written via STORE_GLOBAL adopts it",
+            "config": {
+                "allow_builtins": True,
+            },
+            "actions": [
+                lambda context: dict.__setitem__(
+                    context, "ext_variable", ext_variable
+                ),
+                lambda context: context["ext_variable"],
+            ],
+            "checks": {
+                "result": {
+                    "ext_variable": MI(ANY, MM(MO.REASSIGNED_GLOBAL, 1, 0)),
+                },
+            },
+        },
+        {
             "message": "Setting a value in the context",
             "config": {
                 "allow_builtins": True,
